@@ -1,0 +1,60 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<.header>
+  Houshold account book <%= Calendar.strftime(@date, "%Y-%m") %>
+</.header>
+
+<form method="get" class="mt-4">
+  <input type="month" name="date" value={Calendar.strftime(@date, "%Y-%m")} required>
+  <button type="submit" class="rounded-lg bg-blue-300 px-4 py-2 ml-2">Search</button>
+</form>
+
+<div>
+  <canvas id="pieChart" class="max-w-md"></canvas>
+  <canvas id="barChart"></canvas>
+</div>
+
+<.table id="moneyByCategory" rows={@money_by_categories}>
+  <:col :let={{category, _money}} label="Category">
+    <%= category.category_name %>
+  </:col>
+
+  <:col :let={{_category, money}} label="Total amount">
+    <%= money %>円
+  </:col>
+</.table>
+
+<script>
+  const pie_chart_data = JSON.parse('<%= @pie_chart_data %>'.replace(/&quot;/g, '"'));
+  const pieCtx = document.getElementById('pieChart');
+  const pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: pie_chart_data.categories,
+      datasets: [{
+        backgroundColor: pie_chart_data.color_code,
+        data: pie_chart_data.money
+      }]
+    },
+    options: {
+      title: {
+        display: true,
+        text: '<%= Calendar.strftime(@date, "%Y-%m") %>'
+      }
+    }
+  });
+
+  const bar_chart_data = JSON.parse('<%= @bar_chart_data %>'.replace(/&quot;/g, '"'));
+  const barCtx = document.getElementById('barChart');
+  const barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: bar_chart_data.date,
+      datasets: [{
+        label: '購入金額',
+        data: bar_chart_data.money,
+        backgroundColor: '#00bfff'
+      }]
+    }
+  });
+</script>
